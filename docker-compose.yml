@@ -1,0 +1,62 @@
+version: "3.9"
+
+services: 
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile.php 
+    container_name: php_app
+    volumes:
+      - .:/var/www
+    networks:
+      - app
+    depends_on:
+      db:
+        condition: service_healthy   # wait for DB to be ready, not just started
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_CHARSET: ${DB_CHARSET}
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: myapp-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www
+    depends_on:
+      - php
+    networks:
+      - app
+
+  db:
+    image: mysql:8.4.3
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app:
+
+volumes:        # ← this was missing, you must declare it at the top level
+  db_data:

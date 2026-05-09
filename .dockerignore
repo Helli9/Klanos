@@ -1,0 +1,21 @@
+# Docker-specific files
+Dockerfile
+docker-compose.yml
+.dockerignore
+nginx.conf
+
+# Environment and sensitive data
+.env
+.git
+.gitignore
+
+# Logs and cache
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+.phpunit.result.cache
+
+# OS-specific files
+Thumbs.db
+.DS_Store
