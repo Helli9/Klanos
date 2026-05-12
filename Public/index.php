@@ -11,6 +11,7 @@ session_start_secure();
 // 1. Cleaning the Address
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = rtrim($uri, '/') ?: '/';
+$method = $_SERVER['REQUEST_METHOD'];
 
 // Public routes that should NEVER redirect-loop
 $publicRoutes = ['/', '/login', '/signup'];
@@ -21,25 +22,6 @@ if (!in_array($uri, $publicRoutes) && !check_session_timeout()) {
     exit;
 }
 
-$method = $_SERVER['REQUEST_METHOD'];
-
 // Load routes
-$routes = require __DIR__ . '/../routes/web.php';
-
-$services = [
-    \App\Controllers\AuthController::class    => [new \App\Services\AuthService()],
-    \App\Controllers\NeedListController::class => [new \App\Services\NeedService()],
-];
-
-// ── Dispatch ──────────────────────────────────────────────────────────────
-if (isset($routes[$method][$uri])) {
-    [$controller, $action] = $routes[$method][$uri];
-
-    $args = $services[$controller] ?? [];
-    $controllerInstance = new $controller(...$args);
-    $controllerInstance->$action();
-
-} else {
-    http_response_code(404);
-    echo "404 - Page not found";
-}
+$router = require '../routes/web.php';
+$router->dispatch($uri, $method);

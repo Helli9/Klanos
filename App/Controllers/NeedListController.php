@@ -1,7 +1,7 @@
 <?php
 namespace App\Controllers;
 
-
+use App\Security\CsrfGuard;
 use App\Core\Controller;
 use App\Validators\NeedListValidators;
 use  App\Services\NeedService;
@@ -15,6 +15,11 @@ class NeedListController  extends Controller
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST')
             $this->redirect('/home?tab=need_lists');
+
+        if (!CsrfGuard::validate())
+            return $this->view('pages/login', ['errors' => [
+                'generic' => 'Session expired. Please refresh and try again.'
+        ]]);
 
 
         ['user_id' => $user_id, 'category' => $category, 'item' => $item]
@@ -38,6 +43,11 @@ class NeedListController  extends Controller
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST')
             $this->redirect('/home?tab=need_lists');
+
+        if (!CsrfGuard::validate())
+            return $this->view('pages/login', ['errors' => [
+                'generic' => 'Session expired. Please refresh and try again.'
+        ]]);
 
 
         ['user_id' => $user_id, 'category' => $category, 'item' => $item]
