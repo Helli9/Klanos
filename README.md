@@ -78,7 +78,7 @@ myApp/
 1. Clone the repository:
    ```bash
    git clone https://github.com/Helli9/Klanos.git
-   cd myApp
+   cd Klanos
    ```
 
 2. Copy the environment file and fill in your values:

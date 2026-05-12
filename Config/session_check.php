@@ -1,7 +1,4 @@
 <?php
-// Depends on SESSION_TIMEOUT defined in bootstrap.php
-// Always require bootstrap.php before this file.
-
 function session_start_secure(): void {
     if (session_status() !== PHP_SESSION_NONE) {
         return; // Session already active — do nothing
@@ -16,7 +13,7 @@ function session_start_secure(): void {
         'lifetime' => 0,          // Expires when browser closes
         'path'     => '/',
         'domain'   => '',         // Defaults to current host; set explicitly in .env if needed
-        'secure'   => $isSecure,      // HTTPS only
+        'secure'   => $isSecure,  // HTTPS only
         'httponly' => true,       // No JS access (XSS protection)
         'samesite' => 'Strict',   // No cross-site sending (CSRF protection)
     ]);

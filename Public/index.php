@@ -8,6 +8,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 session_start_secure();
 
 // ── Routing ───────────────────────────────────────────────────────────────
+// 1. Cleaning the Address
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = rtrim($uri, '/') ?: '/';
 
@@ -25,11 +26,17 @@ $method = $_SERVER['REQUEST_METHOD'];
 // Load routes
 $routes = require __DIR__ . '/../routes/web.php';
 
+$services = [
+    \App\Controllers\AuthController::class    => [new \App\Services\AuthService()],
+    \App\Controllers\NeedListController::class => [new \App\Services\NeedService()],
+];
+
 // ── Dispatch ──────────────────────────────────────────────────────────────
 if (isset($routes[$method][$uri])) {
     [$controller, $action] = $routes[$method][$uri];
 
-    $controllerInstance = new $controller();
+    $args = $services[$controller] ?? [];
+    $controllerInstance = new $controller(...$args);
     $controllerInstance->$action();
 
 } else {

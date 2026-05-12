@@ -1,53 +1,80 @@
 <?php
 namespace App\Controllers;
 
-use App\Models\NeedListModel;
+
 use App\Core\Controller;
+use App\Validators\NeedListValidators;
+use  App\Services\NeedService;
 
 class NeedListController  extends Controller
 { 
+    public function __construct(private NeedService $needService) {}
 
     public function create(){
-         $this->requireAuth();
+        $this->requireAuth();
 
-        $errors = [];
-        $user_id = (int) $_SESSION['user_id'];
-        $category = trim($_POST['category'] ?? '');
-        $item = trim($_POST['item'] ?? '');
-        $mode = trim($_POST['mode'] ?? '');
-        $type = ($mode === 'pvp') ? 'pvp' : 'pve';
-
-        // 3. BASIC VALIDATION
-        if(empty($category)) $errors['category'] = "Please select a category";  
-        if(empty($item)) $errors['item'] = "Please select an item";
-
-            
-        if (empty($errors)){
-            NeedListModel::create($category, $item, $type, $user_id);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
             $this->redirect('/home?tab=need_lists');
+
+
+        ['user_id' => $user_id, 'category' => $category, 'item' => $item]
+            = $this->getNeedListInput();
+        $type   = $this->resolveType(trim($_POST['mode'] ?? ''));
+
+        $errors = NeedListValidators::validateNeedList($category, $item);
+        if (empty($errors)) {
+            $result = $this->needService->create($category, $item, $type, $user_id);
+            if (isset($result['error'])) {
+                $errors['generic'] = $result['error'];
+            } else {
+                $this->redirect('/home?tab=need_lists');
+            }
         }
-        
-        $this->view('layout/home', ['errors' => $errors, 'tab'    => 'need_lists',]);
+        $this->renderNeedListErrors($errors);
     }    
 
     public function delete(){
         $this->requireAuth();
 
-        $errors   = [];
-        $user_id  = (int) $_SESSION['user_id'];
-        $category = trim($_POST['category'] ?? '');
-        $item     = trim($_POST['item'] ?? '');
-                
-        // 3. BASIC VALIDATION
-        if(empty($category)) $errors['category'] = "Please select a category";  
-        if(empty($item)) $errors['item'] = "Please select an item";
-        
-        if (empty($errors)){
-            NeedListModel::delete($category, $item, $user_id);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
             $this->redirect('/home?tab=need_lists');
+
+
+        ['user_id' => $user_id, 'category' => $category, 'item' => $item]
+            = $this->getNeedListInput();
+
+        $errors = NeedListValidators::validateNeedList($category, $item);
+        if (empty($errors)) {
+            $result = $this->needService->delete($category, $item, $user_id);
+            if (isset($result['error'])) {
+                $errors['generic'] = $result['error'];
+            } else {
+                $this->redirect('/home?tab=need_lists');
+            }
         }
-        
-        $this->view('layout/home', ['errors' => $errors, 'tab'    => 'need_lists',]);
+        $this->renderNeedListErrors($errors);
     }    
+
+
+    private function resolveType(string $mode): string
+    {
+        return $mode === 'pvp' ? 'pvp' : 'pve';
+    }
+
+    private function getNeedListInput(): array
+    {
+        return [
+            'user_id'  => (int) $_SESSION['user_id'],
+            'category' => trim($_POST['category'] ?? ''),
+            'item'     => trim($_POST['item'] ?? ''),
+        ];
+    }
+    private function renderNeedListErrors(array $errors): void
+    {
+        $this->view('layout/home', [
+            'errors' => $errors,
+            'tab' => 'need_lists',
+        ]);
+    }
 }
 ?>
