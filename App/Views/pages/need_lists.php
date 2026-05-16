@@ -127,6 +127,7 @@ if (empty($_SESSION['csrf_token'])) {
                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
                 <input type="hidden" name="category"   value="<?= e($row['category']) ?>">
                 <input type="hidden" name="item"       value="<?= e($row['item']) ?>">
+                <input type="hidden" name="need_id"    value="<?= e($row['id']) ?>">
                 <input type="hidden" name="mode"       value="pve">
                 <button type="submit" name="delete_item" value="1" class="delete_item">Delete</button>
             </form>

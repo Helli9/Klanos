@@ -13,7 +13,7 @@ class UserModel {
 
     public static function signin(string $email): mixed {
         $pdo = Database::getInstance();
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt = $pdo->prepare("SELECT id, name, password FROM users WHERE email = ?");
         $stmt->execute([$email]);
         return $stmt->fetch();
     }

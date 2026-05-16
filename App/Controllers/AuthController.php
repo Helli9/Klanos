@@ -3,93 +3,84 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Services\AuthService;
-use App\Security\CsrfGuard;
-use App\Validators\LoginValidator;
-use App\Validators\SignupValidator;
 use App\Security\SessionManager;
+use App\Requests\LoginRequest;
+use App\Requests\SignupRequest;
+
 
 
 class AuthController extends Controller{
 
-    public function showLogin(){
+    public function showLogin()
+    {
         $this->view('pages/login', ['errors' => []]);
     }
 
-    public function showSignup(){
+    public function showSignup()
+    {
         $this->view('pages/signup', ['errors' => []]);
     }
+
     public function __construct(private AuthService $authService) {}
 
 
+    public function login() 
+    {
+        // 1. Initialize and Validate
+        $request = new LoginRequest($_POST);
 
-    public function login() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-            return $this->view('pages/login', ['errors' => []]);
-
-        if (!CsrfGuard::validate())
-            return $this->view('pages/login', ['errors' => [
-                'generic' => 'Session expired. Please refresh and try again.'
-            ]]);
-
-        $email    = trim($_POST['email'] ?? '');
-        $password = trim($_POST['password'] ?? '');
-        $ip       = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-
-        $errors = LoginValidator::validateLoginFields($email, $password);
-
-        if (empty($errors)) {
-            $result = $this->authService->login($email, $password, $ip);
-
-            if (isset($result['error'])) {
-                $errors['generic'] = $result['error'];
-            } else {
-                SessionManager::start($result['user']);
-                return $this->redirect('/home');
-            }
+        if (!$request->isValid()) {
+            return $this->view('pages/login', [
+                'errors' => $request->errors(),
+                'old'    => $request->all() // Good for repopulating fields
+            ]);
         }
-        $this->view('pages/login', ['errors' => $errors]);
+        // 2. Attempt Login
+        $result = $this->authService->login(
+            $request->email(),
+            $request->password(),
+            $_SERVER['REMOTE_ADDR']
+        );
+
+        // 3. Handle Service Errors 
+        if (isset($result['error'])) {
+            return $this->view('pages/login', ['errors' => ['generic' => $result['error']]]);
+        }
+
+        // 4. Success
+        SessionManager::start($result['user']);
+        return $this->redirect('/home');
     }
 
-    public function signup() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-            return $this->view('pages/signup', ['errors' => []]);
+    public function signup() 
+    {
 
-        if (!CsrfGuard::validate())
-            return $this->view('pages/signup', ['errors' => [
-                'generic' => 'Invalid or expired form token. Please try again.'
-            ]]);
+        $request = new SignupRequest($_POST);
 
-        $name     = trim($_POST['name'] ?? '');
-        $email    = trim($_POST['email'] ?? '');
-        $password = trim($_POST['password'] ?? '');
-        $confirm  = trim($_POST['password_confirmation'] ?? '');
-
-        $errors = SignupValidator::validateSignupFields($name, $email, $password, $confirm);
-        if (empty($errors)) {
-            $result = $this->authService->signup($name, $email, $password);
-
-            if (isset($result['error'])) {
-                $errors['email'] = $result['error'];
-            } else {
-                return $this->redirect('/login');
-            }
+        if (!$request->isValid()) {
+            return $this->view('pages/signup', [
+                'errors' => $request->errors(),
+                'old'    => $request->all()
+            ]);
         }
 
-        $this->view('pages/signup', ['errors' => $errors]);
+        $result = $this->authService->signup(
+            $request->name(),
+            $request->email(),
+            $request->password()
+        );
+
+        if (isset($result['error'])) {
+            return $this->view('pages/signup', [
+                'errors' => ['email' => $result['error']]
+            ]);
+        }
+
+        return $this->redirect('/login');
     }
 
-    public function logout() {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            $this->redirect('/login');
-            return;
-        }
-
-        if (!CsrfGuard::validate())
-            return $this->view('pages/login', ['errors' => [
-                'generic' => 'Session expired. Please refresh and try again.'
-            ]]);
-
-
+    public function logout() 
+    {
         SessionManager::destroy();
         $this->redirect('/login');
     }

@@ -1,90 +1,72 @@
 <?php
 namespace App\Controllers;
 
-use App\Security\CsrfGuard;
 use App\Core\Controller;
-use App\Validators\NeedListValidators;
-use  App\Services\NeedService;
+use App\Services\NeedService;
+use App\Requests\DeleteNeedRequest;
+use App\Requests\CreateNeedRequest;
 
-class NeedListController  extends Controller
+class NeedListController  extends Controller 
 { 
     public function __construct(private NeedService $needService) {}
 
-    public function create(){
-        $this->requireAuth();
+    public function create()
+    {
+        // 1. Initialize and Validate
+        $request = new CreateNeedRequest($_POST);
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-            $this->redirect('/home?tab=need_lists');
-
-        if (!CsrfGuard::validate())
-            return $this->view('pages/login', ['errors' => [
-                'generic' => 'Session expired. Please refresh and try again.'
-        ]]);
-
-
-        ['user_id' => $user_id, 'category' => $category, 'item' => $item]
-            = $this->getNeedListInput();
-        $type   = $this->resolveType(trim($_POST['mode'] ?? ''));
-
-        $errors = NeedListValidators::validateNeedList($category, $item);
-        if (empty($errors)) {
-            $result = $this->needService->create($category, $item, $type, $user_id);
-            if (isset($result['error'])) {
-                $errors['generic'] = $result['error'];
-            } else {
-                $this->redirect('/home?tab=need_lists');
-            }
+        if (!$request->isValid()) {
+            return $this->view('layout/home', [
+                'errors' => $request->errors(),
+                'old'    => $request->all() // Good for repopulating fields
+            ]);
         }
-        $this->renderNeedListErrors($errors);
+
+        // 2. Attempt Login
+        $result = $this->needService->create(
+            $request->category(), 
+            $request->item(), 
+            $request->mode(), 
+            $request->user()
+        );
+
+        // 3. Handle Service Errors 
+        if (isset($result['error'])) {
+            return $this->renderNeedListErrors($result);
+        }
+        return $this->redirect('/home?tab=need_lists');
     }    
 
-    public function delete(){
-        $this->requireAuth();
+    public function delete()
+    {
+        // 1. Initialize and Validate
+        $request = new DeleteNeedRequest($_POST);
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-            $this->redirect('/home?tab=need_lists');
-
-        if (!CsrfGuard::validate())
-            return $this->view('pages/login', ['errors' => [
-                'generic' => 'Session expired. Please refresh and try again.'
-        ]]);
-
-
-        ['user_id' => $user_id, 'category' => $category, 'item' => $item]
-            = $this->getNeedListInput();
-
-        $errors = NeedListValidators::validateNeedList($category, $item);
-        if (empty($errors)) {
-            $result = $this->needService->delete($category, $item, $user_id);
-            if (isset($result['error'])) {
-                $errors['generic'] = $result['error'];
-            } else {
-                $this->redirect('/home?tab=need_lists');
-            }
+        if (!$request->isValid()) {
+            return $this->view('layout/home', [
+                'errors' => $request->errors(),
+                'old'    => $request->all() // Good for repopulating fields
+            ]);
         }
-        $this->renderNeedListErrors($errors);
+
+        // 2. Attempt Login
+        $result = $this->needService->delete(
+            $request->id(),
+            $request->user()
+        );
+
+        // 3. Handle Service Errors 
+        if (isset($result['error'])) {
+            return $this->renderNeedListErrors($result);
+        }
+
+        return $this->redirect('/home?tab=need_lists');
     }    
 
 
-    private function resolveType(string $mode): string
+    private function renderNeedListErrors(array $result)
     {
-        return $mode === 'pvp' ? 'pvp' : 'pve';
-    }
-
-    private function getNeedListInput(): array
-    {
-        return [
-            'user_id'  => (int) $_SESSION['user_id'],
-            'category' => trim($_POST['category'] ?? ''),
-            'item'     => trim($_POST['item'] ?? ''),
-        ];
-    }
-    private function renderNeedListErrors(array $errors): void
-    {
-        $this->view('layout/home', [
-            'errors' => $errors,
-            'tab' => 'need_lists',
-        ]);
+        $this->view('layout/home', ['errors' => ['generic' => $result['error']]]);
     }
 }
 ?>

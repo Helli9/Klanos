@@ -1,16 +1,17 @@
 <?php
 namespace App\Security;
 
-class SessionManager {
-
-    public static function start(array $user): void {
+class SessionManager 
+{
+    public static function start(array $user): void 
+    {
         session_regenerate_id(true);
-        CsrfGuard::refresh();
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['name']    = $user['name'];
     }
 
-    public static function destroy(): void {
+    public static function destroy(): void 
+    {
         $_SESSION = [];
 
         if (ini_get('session.use_cookies')) {
@@ -27,15 +28,17 @@ class SessionManager {
         CsrfGuard::refresh();
     }
 
-    public static function user(): ?array {
+    public static function user(): ?array 
+    {
         if (empty($_SESSION['user_id'])) return null;
         return [
-            'id'   => $_SESSION['user_id'],
+            'id'   => (int) $_SESSION['user_id'], // Ensure this is definitely an int
             'name' => $_SESSION['name'],
         ];
     }
 
-    public static function isLoggedIn(): bool {
+    public static function isLoggedIn(): bool 
+    {
         return !empty($_SESSION['user_id']);
     }
 }
