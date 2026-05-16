@@ -59,6 +59,37 @@ CREATE TABLE login_attempts (
     INDEX idx_ip    (ip)
 );
 -- =========================
+-- Planner
+-- =========================
+CREATE TABLE events (
+    id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title       VARCHAR(150) NOT NULL,
+    event_date  DATETIME NOT NULL
+);
+-- =========================
+-- event_attendees
+-- =========================
+CREATE TABLE event_attendees (
+    id       INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    event_id  INT UNSIGNED NOT NULL,
+    user_id  INT UNSIGNED NOT NULL,
+    status   ENUM('confirmed', 'tentative', 'absent') DEFAULT 'confirmed',
+
+    CONSTRAINT fk_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+
+    CONSTRAINT fk_events
+        FOREIGN KEY (event_id)
+        REFERENCES events(id)
+        ON DELETE CASCADE
+
+    -- Prevents duplicate sign-ups for the same event
+    UNIQUE KEY unique_user_event (user_id, event_id)
+);
+
+-- =========================
 -- INDEXES (performance)
 -- =========================
 CREATE INDEX idx_need_user ON need_list(user_id);
