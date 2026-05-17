@@ -7,10 +7,16 @@ class EventsRegister extends FormRequest
 {
     protected function validate(): void
     {
-         $id = $this->input('event_id');
+        $id = $this->input('event_id');
 
         if (empty($id) || !ctype_digit((string) $id)) {
             $this->errors['event_id'] = 'Invalid event.';
+        }
+
+        $mode = trim($this->input('mode', ''));
+        $allowed = ['confirmed', 'tentative', 'absent'];
+        if (!in_array($mode, $allowed, true)) {
+            $this->errors['mode'] = 'Invalid status.';
         }
     }
     
@@ -30,6 +36,11 @@ class EventsRegister extends FormRequest
     public function status(): string
     {
         $type  = trim($_POST['mode'] ?? '');
-        return $type === 'pvp' ? 'pvp' : 'pve';
+        return match ($type) {
+            'confirmed' => 'confirmed',
+            'tentative' => 'tentative',
+            'absent'    => 'absent',
+            default     => 'absent', // Safe fallback if mode is empty or invalid
+        };
     }
 }

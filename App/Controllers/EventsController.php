@@ -28,11 +28,12 @@ class EventsController  extends Controller
             $request->status(), 
         );
 
+
         // 3. Handle Service Errors 
         if (isset($result['error'])) {
             return $this->renderNeedListErrors($result);
         }
-        return $this->redirect('/home?tab=need_lists');
+        return $this->redirect('/home?tab=dashboard');
     }    
 
 

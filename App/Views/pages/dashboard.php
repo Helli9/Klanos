@@ -43,48 +43,45 @@ $current_user = $_SESSION['user_id'] ?? null;
     </div>
     
     <div class="events-grid">
-        <div class="event-card">
-            <div class="event-time">Tonight, 21:00</div>
-            <div class="event-title">Archboss Spawn</div>
-            <div class="event-party">Static Party Alpha</div>
-            <div class="event-footer">
-                <span class="status confirmed">5/48 Ready</span>
-                <button class="btn-rsvp">Join</button>
-            </div>
-        </div>
-
-        <div class="event-card">
-            <div class="event-time">Tomorrow, 20:00</div>
-            <div class="event-title">Dimensional Dungeon Run</div>
-            <div class="event-party">Guild Event</div>
-            <div class="event-footer">
-                <span class="status tentative">3/48 Confirmed</span>
-                <button class="btn-rsvp">Join</button>
-            </div>
-        </div>
-
         <?php 
-        $events = EventsModel::getEvents();
-        if (!empty($events)):
-            foreach ($events as $row): 
+            $current_user = $_SESSION['user_id'];
+            $events = EventsModel::getEvents();
+            if (!empty($events)):
+                foreach ($events as $row): 
+                    $Confirmed = EventsModel::getConfirmedCount($row['id']);
         ?>
-            <div class="event-card">
-                <div class="event-time"><?= e(date('M d, H:i', strtotime($row['event_date']))) ?></div>
-                <div class="event-title"><?= e($row['title']) ?></div>
-                <div class="event-party">Guild Event</div>
-                
-                <div class="event-footer">
-                    <span class="status tentative">3/48 Confirmed</span>
-                    <form method="POST" action="/home/register_events"> ///////TODO
-                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
-                        <input type="hidden" name="event_id" value="<?= e($row['id']) ?>">
-                        <button type="submit" name="join_event" value="1" class="btn-rsvp">Join</button>
+        <div class="event-card">
+            <div class="event-time"><?= e(date('M d, H:i', strtotime($row['event_date']))) ?></div>
+            <div class="event-title"><?= e($row['title']) ?></div>
+            <div class="event-party">Guild Event</div>
+            
+            <div class="event-footer">
+                <span class="status tentative"><?= e($Confirmed) ?>/48 Confirmed</span>
+                <div class="event-actions">
+                    <form method="POST" action="/home/register_events"> 
+                        <input type="hidden"  name="csrf_token"  value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
+                        <input type="hidden"  name="event_id"    value="<?= e($row['id']) ?>">
+                        <input type="hidden"  name="mode"        value="confirmed">
+                        <button type="submit" name="join_event"  value="1" class="btn-rsvp">Join</button>
+                    </form>
+                    <form method="POST" action="/home/register_events"> 
+                        <input type="hidden"  name="csrf_token"  value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
+                        <input type="hidden"  name="event_id"    value="<?= e($row['id']) ?>">
+                        <input type="hidden"  name="mode"        value="tentative">
+                        <button type="submit" name="join_event"  value="1" class="btn-rsvp">Tentative</button>
+                    </form>
+                    <form method="POST" action="/home/register_events"> 
+                        <input type="hidden"  name="csrf_token"  value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
+                        <input type="hidden"  name="event_id"    value="<?= e($row['id']) ?>">
+                        <input type="hidden"  name="mode"        value="absent">
+                        <button type="submit" name="join_event"  value="1" class="btn-rsvp">Absent</button>
                     </form>
                 </div>
             </div>
+        </div>
         <?php 
-            endforeach; 
-        endif;
+                endforeach; 
+            endif;
         ?>
     </div>
 </div>
