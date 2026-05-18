@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../App/Core/ErrorHandler.php';
 use App\Core\ErrorHandler;
-ErrorHandler::register();
 
+ErrorHandler::register();
 
 // ── 1. Load .env ──────────────────────────────────────────────────────────
 $envFile = __DIR__ . '/../.env';

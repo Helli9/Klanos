@@ -8,7 +8,6 @@ use App\Requests\LoginRequest;
 use App\Requests\SignupRequest;
 
 
-
 class AuthController extends Controller{
 
     public function showLogin()
@@ -36,20 +35,19 @@ class AuthController extends Controller{
             ]);
         }
         // 2. Attempt Login
-        $result = $this->authService->login(
-            $request->email(),
-            $request->password(),
-            $_SERVER['REMOTE_ADDR']
-        );
+        try {
+            $user  = $this->authService->login(
+                $request->email(),
+                $request->password(),
+                $_SERVER['REMOTE_ADDR']
+            );
+            // 4. Success
+            SessionManager::start($user);
+            return $this->redirect('/home');
 
-        // 3. Handle Service Errors 
-        if (isset($result['error'])) {
-            return $this->view('pages/login', ['errors' => ['generic' => $result['error']]]);
+        } catch (\RuntimeException $e) {
+            return $this->view('pages/login', ['errors' => ['generic' => $e->getMessage()]]);
         }
-
-        // 4. Success
-        SessionManager::start($result['user']);
-        return $this->redirect('/home');
     }
 
     public function signup() 
@@ -64,19 +62,19 @@ class AuthController extends Controller{
             ]);
         }
 
-        $result = $this->authService->signup(
-            $request->name(),
-            $request->email(),
-            $request->password()
-        );
-
-        if (isset($result['error'])) {
-            return $this->view('pages/signup', [
-                'errors' => ['email' => $result['error']]
-            ]);
+        // 2. Attempt Login
+        try {
+            $this->authService->signup(
+                $request->name(),
+                $request->email(),
+                $request->password()
+            );
+            // 4. Success
+            return $this->redirect('/login');
+            
+        } catch (\RuntimeException $e) {
+            return $this->view('pages/signup', ['errors' => ['generic' => $e->getMessage()]]);
         }
-
-        return $this->redirect('/login');
     }
 
     public function logout() 

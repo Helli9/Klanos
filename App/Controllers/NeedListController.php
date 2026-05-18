@@ -22,19 +22,20 @@ class NeedListController  extends Controller
             ]);
         }
 
-        // 2. Attempt Login
-        $result = $this->needService->create(
-            $request->category(), 
-            $request->item(), 
-            $request->mode(), 
-            $request->user()
-        );
+        try {
+            $this->needService->create(
+                $request->category(), 
+                $request->item(), 
+                $request->mode(), 
+                $request->user()
+            );
+            // 4. Success
 
-        // 3. Handle Service Errors 
-        if (isset($result['error'])) {
-            return $this->renderNeedListErrors($result);
+            return $this->redirect('/home?tab=need_lists');
+
+        } catch (\RuntimeException $e) {
+            return $this->view('pages/login', ['errors' => ['generic' => $e->getMessage()]]);
         }
-        return $this->redirect('/home?tab=need_lists');
     }    
 
     public function delete()
@@ -49,24 +50,18 @@ class NeedListController  extends Controller
             ]);
         }
 
-        // 2. Attempt Login
-        $result = $this->needService->delete(
-            $request->id(),
-            $request->user()
-        );
+         try {
+             $this->needService->delete(
+                $request->id(),
+                $request->user()
+            );
+            // 4. Success
 
-        // 3. Handle Service Errors 
-        if (isset($result['error'])) {
-            return $this->renderNeedListErrors($result);
+            return $this->redirect('/home?tab=need_lists');
+
+        } catch (\RuntimeException $e) {
+            return $this->view('pages/login', ['errors' => ['generic' => $e->getMessage()]]);
         }
-
-        return $this->redirect('/home?tab=need_lists');
     }    
-
-
-    private function renderNeedListErrors(array $result)
-    {
-        $this->view('layout/home', ['errors' => ['generic' => $result['error']]]);
-    }
 }
 ?>

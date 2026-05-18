@@ -1,12 +1,10 @@
-<?php 
-use App\Models\ItemModel; 
-use App\Models\NeedListModel; 
-
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+<?php
+/** @var array $allowedCategories */
+/** @var string $currentCat */
+/** @var array $itemList */
+/** @var array $pvpList */
+/** @var array $pveList */
 ?>
-
 <div class="needList_header">
     <h1>My Need lists</h1>
     <div class="summary">Manage your PvP and PvE need lists using the guild item catalog.</div>
@@ -20,16 +18,9 @@ if (empty($_SESSION['csrf_token'])) {
             <label for="category">Category</label>
             <select name="category" id="category" onchange="this.form.submit()">
                 <option value="">-- Select Category --</option>
-                <?php 
-                    $currentCat = $_GET['category'] ?? ''; 
-                    $categories = ['Archboss Weapon', 'belt', 'Bracelet']; // Expand as needed
-                    if (!in_array($currentCat, $categories, strict: true)) {
-                        $currentCat = '';
-                    }
-                    foreach ($categories as $cat): 
-                ?>
+                <?php foreach ($allowedCategories as $cat): ?>
                     <option value="<?= e($cat) ?>" <?= $currentCat === $cat ? 'selected' : '' ?>>
-                        <?= e(ucfirst($cat)) ?>
+                        <?= e($cat) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -45,10 +36,7 @@ if (empty($_SESSION['csrf_token'])) {
             <label for="item">Item</label>
             <select name="item" id="item" required>
                 <option value="">-- Select Item --</option>
-                <?php
-                    $itemList = ItemModel::getByCategory($currentCat);
-                    foreach ($itemList as $items):
-                ?>
+                <?php foreach ($itemList as $items): ?>
                     <option value="<?= e($items['item']) ?>"><?= e($items['item']) ?></option>
                 <?php endforeach; ?>
             </select>
@@ -61,82 +49,59 @@ if (empty($_SESSION['csrf_token'])) {
             <!-- Error Handling -->
             <div class="error-messages">
                 <?php foreach (['user_id', 'item', 'category', 'type'] as $field): ?>
-                    <?php if(!empty($errors[$field])): ?>
+                    <?php if (!empty($errors[$field])): ?>
                         <p class="errorText"><?= e($errors[$field]) ?></p>
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>
-        </form> 
+        </form>
         <?php endif; ?>
     </div>   
 </div>
 
 
 
+
 <div class="need_list">
     <label>PvP Need list :</label>
-    <?php 
-        $current_user = $_SESSION['user_id'];
-        $item = NeedListModel::getPvp($current_user);
-        if (!empty($item)):
-            foreach ($item as $row):
-    ?>
+    <?php if (!empty($pvpList)): ?>
+        <?php foreach ($pvpList as $row): ?>
         <div class="needed">
-            <div>
-                <label class="category">Category: </label>
-                <?= e($row['category']) ?></div>
-            <div>
-                <label class="category">Name:</label>
-                <?= e($row['item']) ?>
-            </div>
-            <form method="POST"  action="/home/delete-need">
+            <div><label class="category">Category: </label><?= e($row['category']) ?></div>
+            <div><label class="category">Name:</label><?= e($row['item']) ?></div>
+            <form method="POST" action="/home/delete-need">
                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
+                <input type="hidden" name="need_id"    value="<?= e($row['id']) ?>">
                 <input type="hidden" name="category"   value="<?= e($row['category']) ?>">
                 <input type="hidden" name="item"       value="<?= e($row['item']) ?>">
                 <input type="hidden" name="mode"       value="pvp">
                 <button type="submit" name="delete_item" value="1" class="delete_item">Delete</button>
             </form>
         </div>
-
-    <?php 
-            endforeach; 
-        else:
-    ?>
+        <?php endforeach; ?>
+    <?php else: ?>
         <p>No items found for this selection.</p>
     <?php endif; ?>
 </div>
 
 <div class="need_list">
     <label>PvE Need list :</label>
-    <?php 
-        $current_user = $_SESSION['user_id'];
-        
-        $item = NeedListModel::getPve($current_user);
-        if (!empty($item)):
-            foreach ($item as $row):
-    ?>
+    <?php if (!empty($pveList)): ?>
+        <?php foreach ($pveList as $row): ?>
         <div class="needed">
-            <div>
-                <label class="category">Category: </label>
-                <?= e($row['category']) ?></div>
-            <div>
-                <label class="category">Name:</label>
-                <?= e($row['item']) ?>
-            </div>
+            <div><label class="category">Category: </label><?= e($row['category']) ?></div>
+            <div><label class="category">Name:</label><?= e($row['item']) ?></div>
             <form method="POST" action="/home/delete-need">
                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
+                <input type="hidden" name="need_id"    value="<?= e($row['id']) ?>">
                 <input type="hidden" name="category"   value="<?= e($row['category']) ?>">
                 <input type="hidden" name="item"       value="<?= e($row['item']) ?>">
-                <input type="hidden" name="need_id"    value="<?= e($row['id']) ?>">
                 <input type="hidden" name="mode"       value="pve">
                 <button type="submit" name="delete_item" value="1" class="delete_item">Delete</button>
             </form>
         </div>
-    <?php 
-            endforeach; 
-        else:
-    ?>
+        <?php endforeach; ?>
+    <?php else: ?>
         <p>No items found for this selection.</p>
     <?php endif; ?>
 </div>
-

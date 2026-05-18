@@ -4,16 +4,16 @@ namespace App\Core;
 class Router
 {
     private array $routes    = [];
-    private array $container = [];
     private array $instances = [];
     private array $currentMiddleware = [];
+    private Container $container;
 
-
-// ── Binding ───────────────────────────────────────────────────────────
-    public function bind(string $class, callable $factory): void
+// Accept the Container via the constructor
+    public function __construct(Container $container)
     {
-        $this->container[$class] = $factory;
+        $this->container = $container;
     }
+
 
 // ── GET ───────────────────────────────────────────────────────────────
     public function get(string $uri, array $action): self
@@ -27,10 +27,15 @@ class Router
         return $this->addRoute('POST', $uri, $action);
     }
 
-    // ── Middleware chain ────────────────────
+// ── Middleware chain ────────────────────
     public function middleware(array $middleware): self
     {
-        $this->currentMiddleware = $middleware;
+        $lastRouteKey = array_key_last($this->routes);
+    
+        if ($lastRouteKey !== null) {
+            $this->routes[$lastRouteKey]['middleware'] = $middleware;
+        }
+        
         return $this;
     }
 
@@ -49,6 +54,7 @@ class Router
 // ── Dispatch ──────────────────────────────────────────────────────────
     public function dispatch(string $uri, string $method): void
     {
+        //echo "<pre>"; print_r($this->routes); echo "</pre>"; die();
         foreach ($this->routes as $route) {
             if ($route['uri'] === $uri && $route['method'] === $method) {
 
@@ -71,24 +77,11 @@ class Router
         $this->notFound($uri, $method);
     }
 
+
     public function make(string $class) 
     {
-        // 1. Check if the ACTUAL OBJECT is already built and saved
-        if(isset($this->instances[$class])){
-            return $this->instances[$class]; // Returns the Object (e.g. AuthController instance)
-        }
-
-        // If a factory exists, use it. Otherwise, try 'new $class()'
-        if (isset($this->container[$class])) {
-            // 2. Get the "Blueprint" (the closure) from the container
-            $factory = $this->container[$class];
-            // 3. Run the closure to create the Object and save it for next time
-            $this->instances[$class] = $factory(); // Runs: new AuthController(new AuthService())
-        } else {
-            $this->instances[$class] = new $class();
-        }
-
-        return $this->instances[$class]; // Returns the newly created Object
+        // Simply delegate the work to your dedicated container!
+        return $this->container->get($class);
     }
 
     private function notFound(string $uri, string $method): void

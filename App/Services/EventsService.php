@@ -5,15 +5,18 @@ use App\Models\EventsModel;
 
 class EventsService 
 {
-    public function register(int $event_id, int $user_id, string $status): array {
+    public function __construct(private EventsModel $event){}
 
-        if (EventsModel::hasUserRegistered($event_id, $user_id)) {
-            return ['error' => 'You are already registered for this event.'];
-        }
-        $created = EventsModel::register($event_id, $user_id, $status);
+    public function register(int $event_id, int $user_id, string $status): void 
+    {
 
-        return $created
-            ? ['success' => true]
-            : ['error' => 'Something went wrong. Please try again.'];
+        if (EventsModel::hasUserRegistered($event_id, $user_id)) 
+            throw new \RuntimeException('You are already registered for this event.');
+        
+        //$created = EventsModel::register($event_id, $user_id, $status);
+        $created = $this->event->register($event_id, $user_id, $status);
+
+        if (!$created)
+            throw new \RuntimeException('Something went wrong. Please try again.');
     }
 }

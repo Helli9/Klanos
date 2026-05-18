@@ -3,9 +3,10 @@ namespace App\Middleware;
 
 class GuestMiddleware
 {
-    public function handle()
+    public function handle(): void
     {
-        if (isset($_SESSION['user_id'])) {
+        // If they are logged in, send them to home instead of showing the login box
+        if (isset($_SESSION['user']) || !empty($_SESSION['user_id'])) { 
             header('Location: /home');
             exit;
         }

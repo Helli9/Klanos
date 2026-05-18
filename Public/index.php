@@ -14,7 +14,7 @@ $uri = rtrim($uri, '/') ?: '/';
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Public routes that should NEVER redirect-loop
-$publicRoutes = ['/', '/login', '/signup'];
+$publicRoutes = ['/login', '/signup'];
 
 // Only check timeout on protected pages
 if (!in_array($uri, $publicRoutes) && !check_session_timeout()) {

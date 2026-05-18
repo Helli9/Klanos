@@ -12,14 +12,19 @@ class ErrorHandler
 
     public static function handleException(\Throwable $e): void
     {
-        self::log($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString());
-        self::render500();
+        self::log(
+            $e->getMessage(),
+            $e->getFile(),
+            $e->getLine(),
+            $e->getTraceAsString()
+        );
+        self::render500($e);
     }
 
     public static function handleError(int $severity, string $message, string $file, int $line): bool
     {
         if (!(error_reporting() & $severity)) {
-            return false; // Suppressed with @operator — let PHP handle it
+            return false;
         }
         throw new \ErrorException($message, 0, $severity, $file, $line);
     }
@@ -27,8 +32,19 @@ class ErrorHandler
     public static function handleShutdown(): void
     {
         $error = error_get_last();
-        if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
-            self::log($error['message'], $error['file'], $error['line']);
+
+        if ($error && in_array($error['type'], [
+            E_ERROR,
+            E_PARSE,
+            E_CORE_ERROR,
+            E_COMPILE_ERROR
+        ])) {
+            self::log(
+                $error['message'],
+                $error['file'],
+                $error['line']
+            );
+
             self::render500();
         }
     }
@@ -43,21 +59,45 @@ class ErrorHandler
             $line,
             $trace
         );
-        error_log($entry, 3, __DIR__ . '/../../storage/logs/error.log');
+
+        try {
+            error_log(
+                $entry,
+                3,
+                __DIR__ . '/../../storage/logs/error.log'
+            );
+        } catch (\Throwable $e) {
+            error_log("LOGGING FAILED: " . $e->getMessage());
+        }
     }
 
-    private static function render500(): void
+    private static function render500(?\Throwable $e = null): void
     {
+        if (ob_get_length()) {
+            ob_clean();
+        }
+
         if (!headers_sent()) {
             http_response_code(500);
             header('Content-Type: text/html; charset=UTF-8');
         }
-        // Show a clean page — zero internal details
-        echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
-              <title>Something went wrong</title></head><body>
-              <h1>Something went wrong</h1>
-              <p>We encountered an unexpected error. Please try again later.</p>
-              </body></html>';
+
+        $isDev = ($_ENV['APP_ENV'] ?? 'prod') === 'dev';
+
+        echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">';
+        echo '<title>Server Error</title></head><body>';
+        echo '<h1>Something went wrong</h1>';
+        echo '<p>Please try again later.</p>';
+
+        if ($isDev && $e) {
+            echo '<hr><pre>';
+            echo htmlspecialchars($e->getMessage()) . "\n\n";
+            echo htmlspecialchars($e->getTraceAsString());
+            echo '</pre>';
+        }
+
+        echo '</body></html>';
+
         exit;
     }
 }

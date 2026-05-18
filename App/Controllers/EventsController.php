@@ -21,25 +21,18 @@ class EventsController  extends Controller
             ]);
         }
 
-        // 2. Attempt Login
-        $result = $this->eventsService->register(
-            $request->event_id(), 
-            $request->user_id(), 
-            $request->status(), 
-        );
+        try {
+            $this->eventsService->register(
+                $request->event_id(), 
+                $request->user_id(), 
+                $request->status(), 
+            );
+            // 4. Success
+            return $this->redirect('/home?tab=dashboard');
 
-
-        // 3. Handle Service Errors 
-        if (isset($result['error'])) {
-            return $this->renderNeedListErrors($result);
+        } catch (\RuntimeException $e) {
+            return $this->view('layout/home', ['errors' => ['generic' => $e->getMessage()]]);
         }
-        return $this->redirect('/home?tab=dashboard');
     }    
-
-
-    private function renderNeedListErrors(array $result)
-    {
-        $this->view('layout/home', ['errors' => ['generic' => $result['error']]]);
-    }
 }
 ?>

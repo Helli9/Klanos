@@ -3,7 +3,6 @@ namespace App\Middleware;
 
 use App\Security\CsrfGuard;
 
-
 class CsrfMiddleware 
 {
     public function handle()
