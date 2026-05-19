@@ -3,9 +3,10 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Services\AuthService;
-use App\Security\SessionManager;
 use App\Requests\LoginRequest;
 use App\Requests\SignupRequest;
+use App\Security\SessionManager;
+
 
 
 class AuthController extends Controller{
@@ -27,7 +28,6 @@ class AuthController extends Controller{
     {
         // 1. Initialize and Validate
         $request = new LoginRequest($_POST);
-
         if (!$request->isValid()) {
             return $this->view('pages/login', [
                 'errors' => $request->errors(),
@@ -52,16 +52,14 @@ class AuthController extends Controller{
 
     public function signup() 
     {
-
+        // 1. Initialize and Validate
         $request = new SignupRequest($_POST);
-
         if (!$request->isValid()) {
             return $this->view('pages/signup', [
                 'errors' => $request->errors(),
                 'old'    => $request->all()
             ]);
         }
-
         // 2. Attempt Login
         try {
             $this->authService->signup(

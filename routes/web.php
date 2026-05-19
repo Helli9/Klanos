@@ -3,9 +3,14 @@
 use App\Core\Container;
 use App\Core\Router;
 use App\Models\UserModel;
+use App\Models\NeedListModel;
+use App\Models\ItemModel;
+use App\Models\EventsModel;
+use App\Models\LoginAttemptModel;
 use App\Services\AuthService;
 use App\Services\NeedService;
 use App\Services\EventsService;
+use App\Services\HomeService;
 use App\Controllers\HomeController;
 use App\Controllers\AuthController;
 use App\Controllers\EventsController;
@@ -19,21 +24,32 @@ $container = new Container();
 
 // 1. Bind Models
 $container->set(UserModel::class, fn() => new UserModel());
+$container->set(ItemModel::class, fn() => new ItemModel());
+$container->set(NeedListModel::class, fn() => new NeedListModel());
+$container->set(LoginAttemptModel::class, fn() => new LoginAttemptModel());
+$container->set(EventsModel::class, fn() => new EventsModel());
 
 // 2. Bind Services 
-$container->set(AuthService::class, fn($c) => new AuthService($c->get(UserModel::class)));
+$container->set(AuthService::class, fn($c) => new AuthService($c->get(UserModel::class),
+    $c->get(LoginAttemptModel::class)
+));
 $container->set(NeedService::class, fn($c) => new NeedService($c->get(UserModel::class)));
 $container->set(EventsService::class, fn($c) => new EventsService($c->get(UserModel::class)));
+$container->set(HomeService::class, fn($c) =>new HomeService(
+    $c->get(UserModel::class), 
+    $c->get(NeedListModel::class),
+    $c->get(ItemModel::class),
+    $c->get(EventsModel::class)
+));
 
 // 3. Bind Controllers
-$container->set(HomeController::class, fn() => new HomeController());
+$container->set(HomeController::class, fn($c) => new HomeController($c->get(HomeService::class)));
 $container->set(AuthController::class, fn($c) => new AuthController($c->get(AuthService::class)));
 $container->set(NeedListController::class, fn($c) => new NeedListController($c->get(NeedService::class)));
 $container->set(EventsController::class, fn($c) => new EventsController($c->get(EventsService::class)));
 
 // 4. Pass the container into your Router instance
 $router = new Router($container);
-
 
 // ── Routes ────────────────────────────────────────────────────────────
 

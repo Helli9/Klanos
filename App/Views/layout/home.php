@@ -1,8 +1,4 @@
 <?php
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
 $allowedTabs = ['dashboard', 'need_lists'];
 $tab = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'dashboard';
 $view = $tab;

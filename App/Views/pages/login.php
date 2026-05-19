@@ -12,7 +12,6 @@
     <form method="POST" action="/login">
         <h1 class="auth-title">Welcome Back</h1>
         <p class="auth-subtitle">Login to continue managing your guild system</p>
-        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
         <input type="hidden" name="csrf_token" value="<?= e(\App\Security\CsrfGuard::get()) ?>">
 
         <?php if (!empty($errors['generic'])): ?>

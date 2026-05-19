@@ -8,14 +8,14 @@ class LoginAttemptModel {
     private const MAX_IP_ATTEMPTS = 50;
     private const LOCKOUT_MINUTES = 15;
 
-    public static function record(string $email, string $ip): void 
+    public function record(string $email, string $ip): void 
     {
         $pdo = Database::getInstance();
         $stmt = $pdo->prepare("INSERT INTO login_attempts (email, ip) VALUES (?, ?)");
         $stmt->execute([$email, $ip]);
     }
 
-    public static function isLocked(string $email, string $ip): bool 
+    public function isLocked(string $email, string $ip): bool 
     {
         $pdo = Database::getInstance();
 
@@ -41,7 +41,7 @@ class LoginAttemptModel {
         
     }
 
-    public static function clearFor(string $email): void 
+    public function clearFor(string $email): void 
     {
         $pdo = Database::getInstance();
         $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE email = ?");

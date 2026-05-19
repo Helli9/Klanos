@@ -4,7 +4,6 @@ namespace App\Core;
 class Router
 {
     private array $routes    = [];
-    private array $instances = [];
     private array $currentMiddleware = [];
     private Container $container;
 
@@ -86,7 +85,9 @@ class Router
 
     private function notFound(string $uri, string $method): void
     {
-        http_response_code(404);
+        if (PHP_SAPI !== 'cli') {
+            http_response_code(404);
+        }
         // Swap this for a proper 404 view later
         echo "404 — {$method} {$uri} not found";
     }

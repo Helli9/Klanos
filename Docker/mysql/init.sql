@@ -78,7 +78,7 @@ CREATE TABLE event_attendees (
     CONSTRAINT fk_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
 
     CONSTRAINT fk_events
         FOREIGN KEY (event_id)

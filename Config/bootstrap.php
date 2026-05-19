@@ -20,7 +20,7 @@ if (file_exists($envFile)) {
 }
 
 // ── 2. Constants ──────────────────────────────────────────────────────────
-defined('BASE_URL')        || define('BASE_URL',        '/myApp/public');
+defined('BASE_URL')        || define('BASE_URL',        $_ENV['APP_BASE_URL'] ?? '/');
 defined('SESSION_TIMEOUT') || define('SESSION_TIMEOUT', 1800); // 30 minutes
 
 // ── 3. Helpers ────────────────────────────────────────────────────────────
