@@ -45,8 +45,8 @@
     <label>Confirm Password</label>
     <input type="password" name="password_confirmation" required>
     <div class="message">
-      <?php if (!empty($errors['password_conf'])): ?>
-        <p class="error"><?= e($errors['password_conf']) ?></p>
+      <?php if (!empty($errors['password_confirmation'])): ?>
+        <p class="error"><?= e($errors['password_confirmation']) ?></p>
       <?php endif; ?>
     </div>
 

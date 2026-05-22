@@ -48,7 +48,7 @@ class SignupRequest extends FormRequest
 
         // 5. Confirm Password
         if ($password !== $confirm) {
-            $this->errors['password_conf'] = "The passwords do not match.";
+            $this->errors['password_confirmation'] = "The passwords do not match.";
         }
     }
 
