@@ -48,7 +48,7 @@
                 <div class="event-actions">
                     <?php foreach (['confirmed' => 'Join', 'tentative' => 'Tentative', 'absent' => 'Absent'] as $mode => $label): ?>
                     <form method="POST" action="/home/register_events">
-                        <input type="hidden" name="csrf_token" value="<?= e(\App\Security\CsrfGuard::get()) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= e((new \App\Security\CsrfGuard())->get()) ?>">///TODO
                         <input type="hidden" name="event_id"   value="<?= e($row['id']) ?>">
                         <input type="hidden" name="mode"       value="<?= e($mode) ?>">
                         <button type="submit" name="join_event" value="1" class="btn-rsvp"><?= e($label) ?></button>

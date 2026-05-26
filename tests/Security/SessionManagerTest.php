@@ -4,9 +4,12 @@ use App\Security\SessionManager;
 
 class SessionManagerTest  extends TestCase
 {
+    private SessionManager $sessionManager;
+
     protected function setUp(): void
     {
         $_SESSION = [];
+        $this->sessionManager = new SessionManager();
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -23,13 +26,13 @@ class SessionManagerTest  extends TestCase
     // ── start()────────────────────────────────
     public function test_start_sets_user_id_in_session(): void
     {
-        SessionManager::start(['id' => 1, 'name' => 'John']);
+        $this->sessionManager->start(['id' => 1, 'name' => 'John']);
         $this->assertSame(1, $_SESSION['user_id']);
     }
 
     public function test_start_sets_name_in_session(): void
     {
-        SessionManager::start(['id' => 1, 'name' => 'John']);
+        $this->sessionManager->start(['id' => 1, 'name' => 'John']);
         $this->assertSame('John', $_SESSION['name']);
     }
 
@@ -39,13 +42,13 @@ class SessionManagerTest  extends TestCase
         $_SESSION['user_id'] = 5;
         $_SESSION['name']    = 'John';
 
-        $user = SessionManager::user();
+        $user = $this->sessionManager->user();
         $this->assertSame(['id' => 5, 'name' => 'John'], $user);
     }
 
     public function test_user_returns_null_when_not_logged_in(): void
     {
-        $this->assertNull(SessionManager::user());
+        $this->assertNull($this->sessionManager->user());
     }
 
     // ── isLoggedIn()────────────────────────────────
@@ -53,18 +56,18 @@ class SessionManagerTest  extends TestCase
     {
         $_SESSION['user_id'] = 1;
 
-        $this->assertTrue(SessionManager::isLoggedIn());
+        $this->assertTrue($this->sessionManager->isLoggedIn());
     }
 
     public function test_is_logged_in_returns_false_when_session_empty(): void
     {
-        $this->assertFalse(SessionManager::isLoggedIn());
+        $this->assertFalse($this->sessionManager->isLoggedIn());
     }
 
     public function test_is_logged_in_returns_false_when_user_id_is_empty(): void
     {
         $_SESSION['user_id'] = '';
 
-        $this->assertFalse(SessionManager::isLoggedIn());
+        $this->assertFalse($this->sessionManager->isLoggedIn());
     }
 }

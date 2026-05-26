@@ -1,16 +1,19 @@
 <?php
 namespace App\Security;
+use App\Security\CsrfGuard;
 
 class SessionManager 
 {
-    public static function start(array $user): void 
+    private CsrfGuard $csrfGuard;
+
+    public function start(array $user): void 
     {
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['name']    = $user['name'];
     }
 
-    public static function destroy(): void 
+    public function destroy(): void 
     {
         $_SESSION = [];
 
@@ -25,10 +28,10 @@ class SessionManager
 
         session_destroy();
         session_start();
-        CsrfGuard::refresh();
+        $this->csrfGuard->refresh();
     }
 
-    public static function user(): ?array 
+    public function user(): ?array 
     {
         if (empty($_SESSION['user_id'])) return null;
         return [
@@ -37,7 +40,7 @@ class SessionManager
         ];
     }
 
-    public static function isLoggedIn(): bool 
+    public function isLoggedIn(): bool 
     {
         return !empty($_SESSION['user_id']);
     }

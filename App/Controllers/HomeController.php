@@ -13,8 +13,7 @@ class HomeController extends Controller
     public function index(): void
     {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
-            exit;
+            return $this->response->redirect('/login');
         }
 
         $data = $this->homeService->getHomeData(

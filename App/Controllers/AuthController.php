@@ -6,22 +6,32 @@ use App\Services\AuthService;
 use App\Requests\LoginRequest;
 use App\Requests\SignupRequest;
 use App\Security\SessionManager;
+use App\Security\CsrfGuard;
 
 
-
-class AuthController extends Controller{
-
+class AuthController extends Controller
+{
+    public function __construct(
+        private AuthService $authService,
+        private SessionManager $sessionManager,
+        private CsrfGuard $csrfGuard
+    ) {}
+    
     public function showLogin()
     {
-        $this->view('pages/login', ['errors' => []]);
+        $csrfToken = $this->csrfGuard->get();
+
+        $this->view('pages/login', [
+            'errors' => [],
+            'csrfToken' => $csrfToken
+        ]);
     }
+
 
     public function showSignup()
     {
         $this->view('pages/signup', ['errors' => []]);
     }
-
-    public function __construct(private AuthService $authService) {}
 
 
     public function login() 
@@ -42,7 +52,7 @@ class AuthController extends Controller{
                 $_SERVER['REMOTE_ADDR']
             );
             // 4. Success
-            SessionManager::start($user);
+            $this->sessionManager->start($user);
             return $this->redirect('/home');
 
         } catch (\RuntimeException $e) {
@@ -77,7 +87,7 @@ class AuthController extends Controller{
 
     public function logout() 
     {
-        SessionManager::destroy();
+        $this->sessionManager->destroy();
         $this->redirect('/login');
     }
 }

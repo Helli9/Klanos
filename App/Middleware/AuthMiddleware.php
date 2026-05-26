@@ -3,11 +3,18 @@ namespace App\Middleware;
 
 class AuthMiddleware
 {
-    public function handle(): void
+    public function handle(): bool
     {
         if (empty($_SESSION['user_id'])) { 
-            header('Location: /login');
-            exit;
+            $this->redirect('/login');
+            return false;
         }
+        return true;
+    }
+
+    protected function redirect(string $url): void
+    {
+        header('Location: ' . $url);
+        exit;
     }
 }
