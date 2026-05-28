@@ -64,7 +64,7 @@ class ErrorHandler
             error_log(
                 $entry,
                 3,
-                __DIR__ . '/../../storage/logs/error.log'
+                __DIR__ . '/../../Storage/logs/error.log'
             );
         } catch (\Throwable $e) {
             error_log("LOGGING FAILED: " . $e->getMessage());

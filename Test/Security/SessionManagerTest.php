@@ -1,6 +1,7 @@
 <?php
 use PHPUnit\Framework\TestCase;
 use App\Security\SessionManager;
+use App\Security\CsrfGuard;
 
 class SessionManagerTest  extends TestCase
 {
@@ -9,7 +10,7 @@ class SessionManagerTest  extends TestCase
     protected function setUp(): void
     {
         $_SESSION = [];
-        $this->sessionManager = new SessionManager();
+        $this->sessionManager = new SessionManager(new CsrfGuard());
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }

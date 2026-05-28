@@ -18,10 +18,10 @@ RUN apk add --no-cache \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy custom PHP configuration
-COPY ./docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
+COPY ./Docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
 
 # Copy custom PHP-FPM configuration
-COPY ./docker/php/fpm.conf /usr/local/etc/php-fpm.d/zz-app.conf
+COPY ./Docker/php/fpm.conf /usr/local/etc/php-fpm.d/zz-app.conf
 
 # Set working directory inside container
 WORKDIR /var/www

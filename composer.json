@@ -4,7 +4,7 @@
         "psr-4": {
             "App\\": "App/",
             "Config\\": "Config/",
-            "Tests\\": "tests/" 
+            "Tests\\": "Tests/" 
         }
     },
     "require-dev": {
