@@ -6,6 +6,11 @@ class SessionManager
 {
     private CsrfGuard $csrfGuard;
 
+    public function __construct(CsrfGuard $csrfGuard) {
+        $this->csrfGuard = $csrfGuard;
+    }
+        
+
     public function start(array $user): void 
     {
         session_regenerate_id(true);

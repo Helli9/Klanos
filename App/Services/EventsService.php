@@ -13,7 +13,6 @@ class EventsService
         if ($this->event->hasUserRegistered($event_id, $user_id)) 
             throw new \RuntimeException('You are already registered for this event.');
         
-        //$created = EventsModel::register($event_id, $user_id, $status);
         $created = $this->event->register($event_id, $user_id, $status);
 
         if (!$created)

@@ -15,7 +15,7 @@
       Join your guild management system
     </p>
 
-    <input type="hidden" name="csrf_token" value="<?= e(\App\Security\CsrfGuard::get()) ?>">
+    <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
 
     <label>Name</label>
     <input type="text" name="name" required>

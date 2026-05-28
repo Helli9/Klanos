@@ -5,10 +5,15 @@ use App\Core\Controller;
 use App\Services\NeedService;
 use App\Requests\DeleteNeedRequest;
 use App\Requests\CreateNeedRequest;
+use App\Security\CsrfGuard;
+
 
 class NeedListController  extends Controller 
 { 
-    public function __construct(private NeedService $needService) {}
+    public function __construct(
+        private NeedService $needService,
+        private CsrfGuard $csrfGuard
+    ) {}
 
     public function create()
     {
@@ -18,7 +23,8 @@ class NeedListController  extends Controller
         if (!$request->isValid()) {
             return $this->view('layout/home', [
                 'errors' => $request->errors(),
-                'old'    => $request->all() // Good for repopulating fields
+                'old'    => $request->all(), // Good for repopulating fields
+                'csrfToken' => $this->csrfGuard->get()
             ]);
         }
 
@@ -30,11 +36,15 @@ class NeedListController  extends Controller
                 $request->user()
             );
             // 4. Success
-
+            $_SESSION['success'] = 'Your need list has been saved.';
             return $this->redirect('/home?tab=need_lists');
 
         } catch (\RuntimeException $e) {
-            return $this->view('pages/login', ['errors' => ['generic' => $e->getMessage()]]);
+            return $this->view('pages/login', [
+                'errors'    => ['generic' => $e->getMessage()],
+                'csrfToken' => $this->csrfGuard->get(),
+                'old'       => $request->all()
+            ]);
         }
     }    
 
@@ -46,7 +56,8 @@ class NeedListController  extends Controller
         if (!$request->isValid()) {
             return $this->view('layout/home', [
                 'errors' => $request->errors(),
-                'old'    => $request->all() // Good for repopulating fields
+                'old'    => $request->all(),
+                'csrfToken' => $this->csrfGuard->get()
             ]);
         }
 
@@ -56,11 +67,15 @@ class NeedListController  extends Controller
                 $request->user()
             );
             // 4. Success
-
+            $_SESSION['success'] = 'Need list deleted successfully.';
             return $this->redirect('/home?tab=need_lists');
 
         } catch (\RuntimeException $e) {
-            return $this->view('pages/login', ['errors' => ['generic' => $e->getMessage()]]);
+             return $this->view('pages/login', [
+                'errors'    => ['generic' => $e->getMessage()],
+                'csrfToken' => $this->csrfGuard->get(),
+                'old'       => $request->all()
+            ]);
         }
     }    
 }

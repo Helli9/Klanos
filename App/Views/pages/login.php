@@ -12,8 +12,7 @@
     <form method="POST" action="/login">
         <h1 class="auth-title">Welcome Back</h1>
         <p class="auth-subtitle">Login to continue managing your guild system</p>
-        <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>"> ////TO DO
-
+        <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
         <?php if (!empty($errors['generic'])): ?>
             <div class="message">
                 <p class="error">

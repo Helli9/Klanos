@@ -16,7 +16,7 @@ $view = $tab;
   <nav>
         <div id="welcome">Welcome, <?= e($_SESSION['name'] ?? 'Guest') ?></div>
         <form method="POST" action="/logout">
-            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
+            <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
             <button type="submit" id="logout-B">Logout</button>
         </form>
     </nav>

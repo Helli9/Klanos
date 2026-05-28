@@ -42,9 +42,9 @@ class HomeControllerTest extends TestCase
     // index — unauthenticated
     // ------------------------------------------------------------------
 
-    public function test_index_redirects_when_user_not_in_session(): void
+    public function test_index_redirects_when_user_not_in_session(): void /////to do
     {
-        // Arrange
+         // Arrange
         unset($_SESSION['user_id']);
         
         // Assert: Service shouldn't be touched if unauthenticated

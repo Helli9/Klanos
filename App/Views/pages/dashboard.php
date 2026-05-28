@@ -34,6 +34,18 @@
         <h3>Upcoming Events</h3>
         <button class="btn-add">+ Schedule</button>
     </div>
+
+    <?php if (isset($errors['generic'])): ?>
+        <div class="alert alert-error">
+            <?= htmlspecialchars($errors['generic']) ?>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($success)): ?>
+        <div class="alert alert-success">
+            <?= htmlspecialchars($success) ?>
+        </div>
+    <?php endif; ?>
     
     <div class="events-grid">
         <?php if (!empty($events)): ?>
@@ -48,7 +60,7 @@
                 <div class="event-actions">
                     <?php foreach (['confirmed' => 'Join', 'tentative' => 'Tentative', 'absent' => 'Absent'] as $mode => $label): ?>
                     <form method="POST" action="/home/register_events">
-                        <input type="hidden" name="csrf_token" value="<?= e((new \App\Security\CsrfGuard())->get()) ?>">///TODO
+                        <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
                         <input type="hidden" name="event_id"   value="<?= e($row['id']) ?>">
                         <input type="hidden" name="mode"       value="<?= e($mode) ?>">
                         <button type="submit" name="join_event" value="1" class="btn-rsvp"><?= e($label) ?></button>

@@ -30,7 +30,7 @@
         <?php if (!empty($currentCat)): ?>
         <form method="POST" action="/home/create-need">
             <input type="hidden" name="tab" value="need_lists">
-            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+            <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
             <input type="hidden" name="category" value="<?= e($currentCat) ?>">
 
             <label for="item">Item</label>
@@ -59,7 +59,18 @@
     </div>   
 </div>
 
+<?php if (isset($errors['generic'])): ?>
+    <div class="alert alert-error">
+        <?= htmlspecialchars($errors['generic']) ?>
+    </div>
+<?php endif; ?>
 
+<?php if (isset($success)): ?>
+    <div class="alert alert-success">
+        <?= htmlspecialchars($success) ?>
+    </div>
+<?php endif; ?>
+    
 
 
 <div class="need_list">

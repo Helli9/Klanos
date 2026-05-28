@@ -429,11 +429,55 @@ button:hover {
    ERRORS
 ========================================================= */
 
-.errorText {
-    color: #ff7b7b;
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 8px;
     font-size: 14px;
+    margin-bottom: 16px;
 }
 
+.alert-error {
+    background: var(--color-background-danger, #fef2f2);
+    border: 1px solid var(--color-border-danger, #fca5a5);
+    color: var(--color-text-danger, #b91c1c);
+}
+
+.alert-error::before {
+    content: '⚠';
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+/* =========================================================
+   success 
+========================================================= */
+.alert-success {
+    background: var(--color-background-success, #f0fdf4);
+    border: 1px solid var(--color-border-success, #86efac);
+    color: var(--color-text-success, #15803d);
+}
+
+.alert-success::before {
+    content: '✓';
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.alert-info {
+    background: var(--color-background-info, #eff6ff);
+    border: 1px solid var(--color-border-info, #93c5fd);
+    color: var(--color-text-info, #1d4ed8);
+}
+
+.alert-info::before {
+    content: 'ℹ';
+    font-size: 15px;
+    flex-shrink: 0;
+}
 /* =========================================================
    MOBILE
 ========================================================= */

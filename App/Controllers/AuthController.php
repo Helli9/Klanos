@@ -30,7 +30,11 @@ class AuthController extends Controller
 
     public function showSignup()
     {
-        $this->view('pages/signup', ['errors' => []]);
+        $csrfToken = $this->csrfGuard->get();
+        $this->view('pages/signup', [
+            'errors' => [],
+            'csrfToken' => $csrfToken
+        ]);
     }
 
 
@@ -40,8 +44,9 @@ class AuthController extends Controller
         $request = new LoginRequest($_POST);
         if (!$request->isValid()) {
             return $this->view('pages/login', [
-                'errors' => $request->errors(),
-                'old'    => $request->all() // Good for repopulating fields
+                'errors'    => $request->errors(),
+                'csrfToken' => $this->csrfGuard->get(),
+                'old'       => $request->all()
             ]);
         }
         // 2. Attempt Login
@@ -56,7 +61,11 @@ class AuthController extends Controller
             return $this->redirect('/home');
 
         } catch (\RuntimeException $e) {
-            return $this->view('pages/login', ['errors' => ['generic' => $e->getMessage()]]);
+            return $this->view('pages/login', [
+                'errors'    => ['generic' => $e->getMessage()],
+                'csrfToken' => $this->csrfGuard->get(),
+                'old'       => $request->all()
+            ]);
         }
     }
 
@@ -67,6 +76,7 @@ class AuthController extends Controller
         if (!$request->isValid()) {
             return $this->view('pages/signup', [
                 'errors' => $request->errors(),
+                'csrfToken' => $this->csrfGuard->get(),
                 'old'    => $request->all()
             ]);
         }
@@ -81,7 +91,11 @@ class AuthController extends Controller
             return $this->redirect('/login');
             
         } catch (\RuntimeException $e) {
-            return $this->view('pages/signup', ['errors' => ['generic' => $e->getMessage()]]);
+            return $this->view('pages/signup', [
+                'errors'    => ['generic' => $e->getMessage()],
+                'csrfToken' => $this->csrfGuard->get(),
+                'old'       => $request->all()
+            ]);
         }
     }
 
