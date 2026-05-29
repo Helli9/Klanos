@@ -40,7 +40,7 @@ class NeedListController  extends Controller
             return $this->redirect('/home?tab=need_lists');
 
         } catch (\RuntimeException $e) {
-            return $this->view('pages/login', [
+            return $this->view('layout/home', [
                 'errors'    => ['generic' => $e->getMessage()],
                 'csrfToken' => $this->csrfGuard->get(),
                 'old'       => $request->all()
@@ -71,7 +71,7 @@ class NeedListController  extends Controller
             return $this->redirect('/home?tab=need_lists');
 
         } catch (\RuntimeException $e) {
-             return $this->view('pages/login', [
+             return $this->view('layout/home', [
                 'errors'    => ['generic' => $e->getMessage()],
                 'csrfToken' => $this->csrfGuard->get(),
                 'old'       => $request->all()

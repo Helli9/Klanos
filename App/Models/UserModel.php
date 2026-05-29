@@ -4,6 +4,12 @@ use Config\Database;
 
 class UserModel {
 
+    public function create(string $name, string $email, string $hashedPassword): bool {
+        $pdo = Database::getInstance();
+        $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
+        return $stmt->execute([$name, $email, $hashedPassword]);
+    }
+
     public function findByEmail(string $email): mixed {
         $pdo = Database::getInstance();
         $stmt = $pdo->prepare("SELECT email FROM users WHERE email = ? LIMIT 1");
@@ -16,12 +22,6 @@ class UserModel {
         $stmt = $pdo->prepare("SELECT id, name, password FROM users WHERE email = ?");
         $stmt->execute([$email]);
         return $stmt->fetch();
-    }
-
-    public function create(string $name, string $email, string $hashedPassword): bool {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-        return $stmt->execute([$name, $email, $hashedPassword]);
     }
 
     public function getClass(int $user_id): array {

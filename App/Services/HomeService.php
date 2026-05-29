@@ -20,12 +20,7 @@ class HomeService
         // dashboard
         $playerClass = $this->users->getClass($userId);
 
-        $rawEvents = $this->event->getEvents();
-
-        $events = array_map(function (array $event) {
-            $event['confirmed'] = $this->event->getConfirmedCount($event['id']);
-            return $event;
-        }, $rawEvents);
+        $events = $this->event->getEvents();
 
         // need list
         $allowedCategories = [

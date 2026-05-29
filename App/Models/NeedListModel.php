@@ -27,6 +27,10 @@ class NeedListModel {
     public function delete(int $id, int $user_id): bool {
         $pdo = Database::getInstance();
         $stmt = $pdo->prepare("DELETE FROM need_list WHERE id = ? AND user_id = ?");
-        return $stmt->execute([$id, $user_id]);
+        if ($stmt->execute([$id, $user_id])) {
+            // Return the actual number of rows deleted (0 or 1)
+            return $stmt->rowCount();
+        }
+        return -1;
     }
 }

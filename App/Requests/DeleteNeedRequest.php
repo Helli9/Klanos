@@ -21,7 +21,7 @@ class DeleteNeedRequest extends FormRequest
     }
 
 
-    public function user(): string
+    public function user(): int
     {
         return (int) $_SESSION['user_id'];
     }

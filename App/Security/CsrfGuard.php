@@ -16,6 +16,12 @@ class CsrfGuard {
         return !empty($_POST['csrf_token'])
             && !empty($_SESSION['csrf_token'])
             && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']);
+            
+        if ($valid) {
+                $this->refresh();
+            }
+
+        return $valid;
     }
 
     public function refresh(): void 

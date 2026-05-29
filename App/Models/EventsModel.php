@@ -12,9 +12,14 @@ class EventsModel {
 
     public function getEvents(): array {
         $pdo = Database::getInstance();
-        $stmt = $pdo->prepare("SELECT id, title, event_date FROM events");
+        $stmt = $pdo->prepare(
+            "SELECT  e.*, COUNT(c.id) AS confirmed 
+            FROM events e
+            LEFT JOIN event_attendees c ON e.id = c.event_id
+            GROUP BY e.id"
+        );
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);;
     }
 
     public function getConfirmedCount(int $eventId): int {

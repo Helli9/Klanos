@@ -18,7 +18,6 @@ use App\Security\SessionManager;
 use App\Security\CsrfGuard;
 
 
-
 // ── Dependency Injection "DI" Container Setup ─────────────────────────
 $container = new Container();
 
@@ -53,9 +52,9 @@ $router->post('/signup', [AuthController::class, 'signup'])->middleware([new Csr
 $router->post('/logout', [AuthController::class, 'logout'])->middleware([new CsrfMiddleware($container->get(CsrfGuard::class)), new AuthMiddleware()]);
 
 // Feature Routes (Needs & Events)
-$router->post('/home/create-need', [NeedListController::class, 'create'])->middleware([new CsrfMiddleware($container->get(CsrfGuard::class))]);
-$router->post('/home/delete-need', [NeedListController::class, 'delete'])->middleware([new CsrfMiddleware($container->get(CsrfGuard::class))]);
-$router->post('/home/register_events', [EventsController::class, 'register'])->middleware([new CsrfMiddleware($container->get(CsrfGuard::class))]);
+$router->post('/home/create-need', [NeedListController::class, 'create'])->middleware([new CsrfMiddleware($container->get(CsrfGuard::class)), new AuthMiddleware()]);
+$router->post('/home/delete-need', [NeedListController::class, 'delete'])->middleware([new CsrfMiddleware($container->get(CsrfGuard::class)), new AuthMiddleware()]);
+$router->post('/home/register_events', [EventsController::class, 'register'])->middleware([new CsrfMiddleware($container->get(CsrfGuard::class)), new AuthMiddleware()]);
 
 
 return $router;
