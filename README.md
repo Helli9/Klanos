@@ -1,83 +1,201 @@
-# MyApp
+# Klanos
 
-A custom PHP MVC application built from scratch without frameworks.
+A custom PHP MVC application built from scratch to practice backend engineering concepts including dependency injection, authentication, validation, middleware, security, testing, and Dockerized deployment.
 
 ## Features
 
-- Authentication
-- Registration/Login
-- CSRF Protection
-- Argon2id Password Hashing
-- Session Management
-- Middleware
-- Dependency Injection Container
-- Request Validation
-- Docker Support
-- PHPUnit Test Suite
+### Authentication & Security
 
-## Architecture
+* User registration and login
+* Password hashing with Argon2id
+* Session management
+* CSRF protection
+* Login attempt tracking
+* Route protection through middleware
 
-Controller
-↓
-Request Validation
-↓
-Service Layer
-↓
-Model Layer
-↓
-Database
+### Need List Management
 
-## Tech Stack
+* Create need list items
+* View need list items
+* Delete need list items
+* Input validation using Form Requests
 
-- PHP 8.x
-- MySQL
-- PHPUnit
-- Docker
-- Nginx
+### Events System
 
-## Installation
+* Event registration
+* Event participation management
+* Service-layer business logic
 
-git clone ...
-cd myApp
+### Architecture
 
-docker compose up -d
+* Custom MVC structure
+* Dependency Injection Container
+* Automatic dependency resolution
+* Middleware pipeline
+* Service layer pattern
+* Request validation layer
+* Centralized error handling
 
-## Running Tests
+### Testing
 
-vendor/bin/phpunit
+* Unit tests for:
+
+  * Controllers
+  * Services
+  * Models
+  * Middleware
+  * Requests
+  * Security components
+  * Core framework classes
+
+### Docker Support
+
+* PHP-FPM
+* Nginx
+* MySQL
+* Custom Docker configuration
+
+---
 
 ## Project Structure
 
+```text
 App/
 ├── Controllers/
-├── Services/
+├── Core/
+├── Middleware/
 ├── Models/
 ├── Requests/
-├── Middleware/
 ├── Security/
-├── Core/
+├── Services/
+└── Views/
 
-## Security
+Config/
+Docker/
+Public/
+Routes/
+Storage/
+Test/
+```
 
-- CSRF tokens
-- Argon2id password hashing
-- Session protection
-- Login throttling
+---
 
-## Test Coverage
+## Technologies Used
 
-- Controllers
-- Services
-- Models
-- Middleware
-- Requests
-- Security
+* PHP 8+
+* MySQL
+* PHPUnit
+* Docker
+* Nginx
+* HTML
+* CSS
 
-142+ tests
+---
+
+## Core Components
+
+### Dependency Injection Container
+
+Custom container supporting:
+
+* Service registration
+* Singleton instances
+* Automatic constructor dependency resolution
+
+### Router
+
+Handles:
+
+* GET routes
+* POST routes
+* Middleware execution
+* Controller dispatching
+
+### Form Requests
+
+Dedicated validation classes:
+
+* LoginRequest
+* SignupRequest
+* CreateNeedRequest
+* DeleteNeedRequest
+* EventsRegister
+
+### Middleware
+
+* AuthMiddleware
+* GuestMiddleware
+* CsrfMiddleware
+
+---
+
+## Running the Project
+
+### Clone Repository
+
+```bash
+git clone <repository-url>
+cd Klanos
+```
+
+### Start Docker Environment
+
+```bash
+docker compose up -d --build
+```
+
+### Access Application
+
+```text
+http://localhost
+```
+
+---
+
+## Running Tests
+
+```bash
+vendor/bin/phpunit
+```
+
+Run a specific test suite:
+
+```bash
+vendor/bin/phpunit Test/Services
+```
+
+---
+
+## Learning Objectives
+
+This project was built to gain hands-on experience with:
+
+* MVC architecture
+* Dependency Injection
+* Authentication systems
+* Middleware design
+* Request validation
+* Session security
+* Unit testing
+* Docker deployment
+* Backend application structure
+
+---
 
 ## Future Improvements
 
-- Route parameters
-- Repository pattern
-- API layer
-- Role-based permissions
+* Route parameters (`/users/{id}`)
+* Named routes
+* Repository pattern
+* Response abstraction layer
+* API endpoints
+* Authorization policies
+* Improved test coverage
+
+---
+
+## Author
+
+Marwan
+
+Backend-focused developer interested in PHP, MySQL, system design, and building reliable web applications.
