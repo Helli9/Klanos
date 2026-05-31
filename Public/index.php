@@ -1,27 +1,27 @@
 <?php
 // ── Bootstrap ─────────────────────────────────────────────────────────────
-require_once __DIR__ . '/../config/bootstrap.php';
-require_once __DIR__ . '/../config/session_check.php';
+require_once __DIR__ . '/../Config/bootstrap.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // ── Session ───────────────────────────────────────────────────────────────
-session_start_secure();
+use App\Security\CsrfGuard;
+use App\Security\SessionManager;
+
+$sessionManager = new SessionManager(new CsrfGuard());
+$sessionManager->startSecure();
 
 // ── Routing ───────────────────────────────────────────────────────────────
-// 1. Cleaning the Address
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$uri = rtrim($uri, '/') ?: '/';
+$uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri    = rtrim($uri, '/') ?: '/';
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Public routes that should NEVER redirect-loop
 $publicRoutes = ['/login', '/signup'];
 
-// Only check timeout on protected pages
-if (!in_array($uri, $publicRoutes) && !check_session_timeout()) {
+if (!in_array($uri, $publicRoutes) && !$sessionManager->checkTimeout()) {
     header('Location: /login');
     exit;
 }
 
 // Load routes
-$router = require '../routes/web.php';
+$router = require '../Routes/web.php';
 $router->dispatch($uri, $method);

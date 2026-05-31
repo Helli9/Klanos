@@ -57,7 +57,7 @@ class AuthController extends Controller
                 $_SERVER['REMOTE_ADDR']
             );
             // 4. Success
-            $this->sessionManager->start($user);
+            $this->sessionManager->login($user);
             return $this->redirect('/home');
 
         } catch (\RuntimeException $e) {
