@@ -24,13 +24,14 @@ class NeedListModel {
         return $stmt->fetchAll();
     }
 
-    public function delete(int $id, int $user_id): bool {
-        $pdo = Database::getInstance();
+    public function delete(int $id, int $user_id): int {
+        $pdo  = Database::getInstance();
         $stmt = $pdo->prepare("DELETE FROM need_list WHERE id = ? AND user_id = ?");
-        if ($stmt->execute([$id, $user_id])) {
-            // Return the actual number of rows deleted (0 or 1)
-            return $stmt->rowCount();
+
+        if (!$stmt->execute([$id, $user_id])) {
+            return -1;
         }
-        return -1;
+
+        return $stmt->rowCount(); // 1 if deleted, 0 if not found
     }
 }

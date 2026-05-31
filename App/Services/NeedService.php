@@ -16,8 +16,12 @@ class NeedService
 
     public function delete(int $id, int $user_id): void
     {
-        $deleted = $this->needList->delete($id, $user_id);
-        if (!$deleted)
-            throw new \RuntimeException('Something went wrong. Please try again.');
+        $result = $this->needList->delete($id, $user_id);
+
+        match ($result) {
+            1  => null, // deleted — do nothing
+            0  => throw new \RuntimeException('Item not found or already deleted.'),
+            -1 => throw new \RuntimeException('Something went wrong. Please try again.'),
+        };
     }
 }
