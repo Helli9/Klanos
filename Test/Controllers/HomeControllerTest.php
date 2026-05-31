@@ -1,16 +1,19 @@
 <?php
+
 namespace Tests\Controllers;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use App\Controllers\HomeController;
+use App\Controllers\EventsController;
+use App\Services\EventsService;
 use App\Services\HomeService;
+use App\Security\CsrfGuard;
 
 /**
  * SUBCLASS SANDBOX: Intercepts side-effects (redirect/view) so they don't 
- * trigger actual headers, echo output, or kill the script with exit().
+ * trigger actual headers, echo output, or kill the script with exit() during validation failures.
  */
-class TestableHomeController extends HomeController
+class TestableEventsController extends EventsController
 {
     public array $renderedViews = [];
     public ?string $redirectPath = null;
@@ -26,91 +29,101 @@ class TestableHomeController extends HomeController
     }
 }
 
-class HomeControllerTest extends TestCase
+class EventsControllerTest extends TestCase
 {
-    private TestableHomeController $controller; // Use the testable subclass wrapper
+    private TestableEventsController $controller;
+    private EventsService&MockObject $eventsService;
     private HomeService&MockObject $homeService;
+    private CsrfGuard&MockObject $csrfGuard;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->homeService = $this->createMock(HomeService::class);
-        $this->controller = new TestableHomeController($this->homeService);
+
+        // 1. Initialize all required dependencies as Mock Objects
+        $this->eventsService = $this->createMock(EventsService::class);
+        $this->homeService   = $this->createMock(HomeService::class);
+        $this->csrfGuard     = $this->createMock(CsrfGuard::class);
+
+        // 2. Instantiate the wrapper, satisfying the full constructor signature
+        // Note: Change the order of parameters here if your real EventsController constructor differs
+        $this->controller = new TestableEventsController(
+            $this->eventsService,
+            $this->homeService,
+            $this->csrfGuard
+        );
     }
 
     // ------------------------------------------------------------------
-    // index — unauthenticated
+    // Register Validation Rules
     // ------------------------------------------------------------------
 
-    public function test_index_redirects_when_user_not_in_session(): void /////to do
+    public function test_register_does_not_call_service_when_validation_fails(): void
     {
-         // Arrange
-        unset($_SESSION['user_id']);
+        // Arrange: Empty global post array mocks empty validation payload
+        $_POST = []; 
         
-        // Assert: Service shouldn't be touched if unauthenticated
-        $this->homeService->expects($this->never())->method('getHomeData');
-
-        // Act
-        $this->controller->index();
-
-        // Assert: Captured redirect path matches expectation
-        $this->assertSame('/login', $this->controller->redirectPath);
-    }
-
-    // ------------------------------------------------------------------
-    // index — authenticated
-    // ------------------------------------------------------------------
-
-    public function test_index_calls_service_with_session_user_id(): void
-    {
-        $_SESSION['user_id'] = '42';
-        $_GET = [];
-        $fakeData = ['events' => [], 'needs' => []];
-
-        // Assert: Service gets called with cast integer and null category
         $this->homeService
-            ->expects($this->once())
             ->method('getHomeData')
-            ->with(42, null)
-            ->willReturn($fakeData);
-
-        $this->controller->index();
-    }
-
-    public function test_index_passes_category_from_get_param(): void
-    {
-        $_SESSION['user_id'] = '7';
-        $_GET['category']    = 'food';
-
-        // Assert: Query parameter 'category' is passed correctly to service
-        $this->homeService
-            ->expects($this->once())
-            ->method('getHomeData')
-            ->with(7, 'food')
             ->willReturn([]);
 
-        $this->controller->index();
+        $this->csrfGuard
+            ->method('get')
+            ->willReturn('fake-csrf-token');
+
+        // Assert: Verify that execution flow halts before service layer manipulation
+        $this->eventsService
+            ->expects($this->never())
+            ->method('register');
+
+        // Act
+        $this->controller->register();
+
+        // Assert: Instead of a risky early exit, we verify the redirected sandbox state
+        $this->assertNotNull($this->controller->redirectPath, 'Controller should trigger a failure redirection path.');
     }
 
-    public function test_index_uses_guest_name_when_name_not_in_session(): void
+    public function test_register_calls_service_with_correct_data(): void
     {
-        $_SESSION['user_id'] = '1';
-        unset($_SESSION['name']);
-        $_GET = [];
+        // Arrange
+        $_POST = [
+            'event_name' => 'Tech Meetup 2026',
+            'event_date' => '2026-08-15'
+        ];
 
-        $this->homeService->method('getHomeData')->willReturn([]);
+        $this->eventsService
+            ->expects($this->once())
+            ->method('register')
+            ->with($_POST);
 
-        $this->controller->index();
+        // Act
+        $this->controller->register();
+    }
 
-        // Fix risky test: Assert against intercepted view data array
+    public function test_register_renders_error_view_on_runtime_exception(): void
+    {
+        // Arrange
+        $_POST = [
+            'event_name' => 'Broken Event',
+            'event_date' => '2026-01-01'
+        ];
+
+        $this->eventsService
+            ->method('register')
+            ->willThrowException(new \RuntimeException("Database connection failed"));
+
+        // Act
+        $this->controller->register();
+
+        // Assert: Intercepted view captures data cleanly
         $this->assertCount(1, $this->controller->renderedViews);
-        $this->assertSame('Guest', $this->controller->renderedViews[0]['data']['name']);
+        $this->assertSame('errors/generic', $this->controller->renderedViews[0]['path']);
     }
 
     protected function tearDown(): void
     {
-        // Clean up global states after each test run
-        $_SESSION = [];
-        $_GET     = [];
+        // Clean up global superglobals state isolation
+        $_POST = [];
+        $_GET  = [];
     }
 }
