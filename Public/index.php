@@ -23,5 +23,5 @@ if (!in_array($uri, $publicRoutes) && !$sessionManager->checkTimeout()) {
 }
 
 // Load routes
-$router = require '../Routes/web.php';
+$router = require __DIR__ . '../Routes/web.php';
 $router->dispatch($uri, $method);

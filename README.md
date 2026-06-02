@@ -194,6 +194,13 @@ This project was built to gain hands-on experience with:
 
 ---
 
+## 🚀 Live Demo
+
+You can view the live deployment of this application here:
+[klanos.infinityfree.me](https://klanos.infinityfree.me/)
+
+---
+
 ## Author
 
 Marwan
